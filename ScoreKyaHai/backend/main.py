@@ -41,7 +41,7 @@ def init_db():
     # Create Keyspace
     db_session.execute("""
         CREATE KEYSPACE IF NOT EXISTS ipl_live
-        WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}}
+        WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'};
     """)
     db_session.set_keyspace('ipl_live')
 
