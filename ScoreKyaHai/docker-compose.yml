@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # 1. The Real-Time Message Broker & Cache
+  redis:
+    image: redis:latest
+    container_name: scorekyahai_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - ipl_network
+    command: redis-server --save 60 1 --loglevel warning
+
+  # 2. The Heavy-Duty Time-Series Database
+  cassandra:
+    image: cassandra:latest
+    container_name: scorekyahai_cassandra
+    ports:
+      - "9042:9042" # Native Transport Port
+    environment:
+      - CASSANDRA_CLUSTER_NAME=IPLCluster
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+    networks:
+      - ipl_network
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  # 3. The Python Backend (Data Ingestion & WebSockets)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: scorekyahai_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=redis://redis:6379
+      - CASSANDRA_HOST=cassandra
+    depends_on:
+      redis:
+        condition: service_started
+      cassandra:
+        condition: service_healthy
+    networks:
+      - ipl_network
+    volumes:
+      - ./backend:/app
+
+  # 4. The AI-Generated Frontend (Next.js)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: scorekyahai_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
+    depends_on:
+      backend:
+        condition: service_started
+    networks:
+      - ipl_network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+networks:
+  ipl_network:
+    driver: bridge
+
+volumes:
+  cassandra_data:
+    driver: local

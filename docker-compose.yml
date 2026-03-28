@@ -61,7 +61,8 @@ services:
     environment:
       - NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
     depends_on:
-      - backend:
+      backend:
+        condition: service_started
     networks:
       - ipl_network
     volumes:
