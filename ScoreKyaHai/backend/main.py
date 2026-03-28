@@ -7,7 +7,7 @@ import os
 app = FastAPI(title="ScoreKyaHai Real-Time API")
 
 # Read environment variables
-REDIS_URL = "redis://localhost:6379"
+REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379")
 
 # Store active WebSocket connections
 class ConnectionManager:
