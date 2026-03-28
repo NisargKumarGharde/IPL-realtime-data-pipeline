@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ScoreKyaHai Live Test</title>
+<head>
+<body style="background-color: #121212; color: #00FF00; font-family: monospace; padding: 20px;">
+    <h2>🏏 Live IPL Stream (WebSocket Test)</h2>
+    <div id="scoreboard" style="font-size: 24px; margin-bottom: 20px;">Score: Waiting for next ball...</div>
+    <ul id="timeline"></ul>
+
+    <script>
+        // Connect directly to your FastAPI WebSocket endpoint
+        const ws = new WebSocket('ws://localhost:8000/ws');
+
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+
+            // Update the main scoreboard
+            document.getElementById("scoreboard").innerText = `${data.match} | Score: ${data.score}`;
+
+            // Add to timeline
+            const timeline = document.getElementById("timeline");
+            const newBall = document.createElement("li");
+            newBall.innerText = `Over ${data.over} -> ${data.message}`;
+            timeline.prepend(newBall); // Add to top
+        };
+    </script>
+</body>
+</html>
