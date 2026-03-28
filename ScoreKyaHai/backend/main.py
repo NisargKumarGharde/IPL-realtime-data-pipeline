@@ -27,7 +27,7 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-@app.lifespan("startup")
+@app.on_event("startup")
 async def startup_event():
     """Connect to Redis when the server starts."""
     app.state.redis = redis.from_url(REDIS_URL, encoding="utf-8", decode_responses=True)

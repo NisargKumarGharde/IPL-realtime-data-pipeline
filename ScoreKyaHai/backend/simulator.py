@@ -15,7 +15,7 @@ async def simulate_match():
     try:
         while True:
             # Generate fake cricket action
-            event = random.choices([0, 1, 2, 4, 6, "W", 0, 1])
+            event = random.choice([0, 1, 2, 4, 6, "W", 0, 1])
             
             if event == "W":
                 wickets += 1
